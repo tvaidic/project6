@@ -80,8 +80,7 @@ class Base:
     
     @staticmethod
     def column_fix(df,column,name='name'):
-        for i in range(len(df[column])):
-            a_list = []
-            for e in range(len(df[column][i])):
-                a_list.append(df[column][i][e][name])
-            df[column][i] = a_list
+        df[column] = [
+            [df[column][i][e][name] for e in range(len(df[column][i]))]
+            for i in range(len(df[column]))
+            ]

@@ -31,9 +31,10 @@ if select:
     
     for i in range(len(df['full_name'])):
         if select == df['full_name'][i]:
-            link = (df['images'][i][2])
+            link = (df['images'][i])
             index = i
-    st.image(link['url'],caption=link['caption'])   
+    ran_num = np.random.randint(0, len(df['images'][index]))
+    st.image(link[ran_num]['url'], caption=link[ran_num]['caption'])
     st.subheader('About The Park:')
     st.write(df['description'][index])
     st.subheader('Things to do:')
