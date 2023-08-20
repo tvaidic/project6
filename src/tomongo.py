@@ -15,8 +15,6 @@ class ToMongo(Base):
     '''
     
     def __init__(self, user=os.getenv('USERNAME'), password=os.getenv('PASSWORD')):
-        # Initialize the instance of our inherited class:
-        Base.__init__(self)
         # Load the env variables:
         load_dotenv()
         self.user = user
@@ -29,13 +27,15 @@ class ToMongo(Base):
         # Create a collection:
         self.park_info = self.db.park_info
         # Set dataframe index to the id column:
-        self.df.set_index('id', inplace=True)
+        
         
     def upload_collection(self):
         self.park_info.insert_many([self.df.to_dict()])
 
     def upload_one_by_one(self):
-    
+        self.park_info.drop()
+        Base.__init__(self)     #<---add the dunders to init
+        self.df.set_index('id', inplace=True)
         for i in self.df.index:
             self.park_info.insert_one(self.df.loc[i].to_dict())
         

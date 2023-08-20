@@ -4,12 +4,13 @@ import urllib.request, json
 from dotenv import load_dotenv
 import os
 from requests.auth import HTTPBasicAuth
-
+import numpy as np
 class Base:
     
     def __init__(self):
         self.api_url = "https://developer.nps.gov/api/v1/parks?limit=500"
         self.get_data()
+        self.clean_data()
     
     def return_url(self):
         return self.api_url
@@ -24,19 +25,14 @@ class Base:
         json_data = json.loads(data.decode('utf-8'))
         parks = json_data['data']
         self.df = pd.DataFrame.from_dict(parks)
-        
-        
-if __name__ == '__main__':
-    c = Base()
-    c.df.to_csv('national_park_information.csv', index=False)
 
 
     def clean_data(self):
-        columns = ['fees','id','latLong','entrancePasses','directionsInfo','directionsUrl','addresses','weatherInfo','name','contacts']
+        columns = ['fees','latLong','entrancePasses','directionsInfo','directionsUrl','addresses','weatherInfo','name','contacts']
         self.df.drop(columns=columns,axis=1,inplace=True)
         self.df=self.df.apply(pd.to_numeric,errors='ignore')
-        column_fix(self.df,'activities')
-        column_fix(self.df,'topics')
+        self.column_fix(self.df,'activities')
+        self.column_fix(self.df,'topics')
         name_change = [{'fullName':'full_name'},{'parkCode':'park_code'},{'entranceFees':'entrance_fees'},{'operatingHours':'operating_hours'}]
         for name in name_change:
             self.df.rename(columns=name,inplace=True)
@@ -71,6 +67,16 @@ if __name__ == '__main__':
         self.df['standard_hours']=operating
         self.df['holiday']=holidays
         self.df.drop(columns='operating_hours', axis=1, inplace=True)
+        s_list=[]
+        s_list=[]
+        for i in range(len(self.df['states'])):
+            if len(self.df['states'].iloc[i].split(','))>1:
+                s=self.df['states'].iloc[i].split(',')
+
+                s_list.append(list([j for j in s]))
+            else:
+                s_list.append(self.df['states'].loc[i].split(',')[0])
+        self.df['states'] = s_list
     
     @staticmethod
     def column_fix(df,column,name='name'):
